@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulator Rangkaian Elektronik</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo">
+                <i class="fas fa-microchip"></i>
+                <span>Simulator Rangkaian Elektronik</span>
+            </div>
+            <div class="header-controls">
+                <button id="save-btn" class="header-btn">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
+                <button id="load-btn" class="header-btn">
+                    <i class="fas fa-folder-open"></i> Muat
+                </button>
+                <button id="simulate-btn" class="header-btn primary">
+                    <i class="fas fa-play"></i> Simulasi
+                </button>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <div class="sidebar">
+                <div class="component-group">
+                    <h3>Komponen Dasar</h3>
+                    <div class="component-grid">
+                        <button class="component-btn" data-type="battery">
+                            <i class="fas fa-battery-full"></i>
+                            <span>Baterai</span>
+                        </button>
+                        <button class="component-btn" data-type="resistor">
+                            <i class="fas fa-minus"></i>
+                            <span>Resistor</span>
+                        </button>
+                        <button class="component-btn" data-type="led">
+                            <i class="far fa-lightbulb"></i>
+                            <span>LED</span>
+                        </button>
+                        <button class="component-btn" data-type="switch">
+                            <i class="fas fa-toggle-on"></i>
+                            <span>Saklar</span>
+                        </button>
+                        <button class="component-btn" data-type="ground">
+                            <i class="fas fa-grip-lines"></i>
+                            <span>Ground</span>
+                        </button>
+                        <button class="component-btn" data-type="capacitor">
+                            <i class="fas fa-equals"></i>
+                            <span>Kapasitor</span>
+                        </button>
+                        <button class="component-btn" data-type="inductor">
+                            <i class="fas fa-wave-square"></i>
+                            <span>Induktor</span>
+                        </button>
+                        <button class="component-btn" data-type="diode">
+                            <i class="fas fa-chevron-right"></i>
+                            <span>Dioda</span>
+                        </button>
+                        <button class="component-btn" data-type="acSource">
+                            <i class="fas fa-bolt"></i>
+                            <span>Sumber AC</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="component-group">
+                    <h3>Alat</h3>
+                    <div class="component-grid">
+                        <button class="component-btn" data-type="wire">
+                            <i class="fas fa-slash"></i>
+                            <span>Kabel</span>
+                        </button>
+                        <button class="component-btn" data-type="delete">
+                            <i class="fas fa-trash"></i>
+                            <span>Hapus</span>
+                        </button>
+                        <button class="component-btn" data-type="voltmeter">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Voltmeter</span>
+                        </button>
+                        <button class="component-btn" data-type="ammeter">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Amperemeter</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="component-group">
+                    <h3>Template Rangkaian</h3>
+                    <button id="series-circuit" class="template-btn">
+                        <i class="fas fa-project-diagram"></i> Rangkaian Seri
+                    </button>
+                    <button id="parallel-circuit" class="template-btn">
+                        <i class="fas fa-project-diagram"></i> Rangkaian Paralel
+                    </button>
+                    <button id="mixed-circuit" class="template-btn">
+                        <i class="fas fa-project-diagram"></i> Rangkaian Campuran
+                    </button>
+                    <button id="clear-btn" class="template-btn danger">
+                        <i class="fas fa-broom"></i> Bersihkan
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="toolbar">
+                    <div class="view-controls">
+                        <button id="zoom-in"><i class="fas fa-search-plus"></i></button>
+                        <button id="zoom-out"><i class="fas fa-search-minus"></i></button>
+                        <button id="reset-view"><i class="fas fa-expand"></i></button>
+                    </div>
+                    <div id="mode-indicator" class="mode-indicator">Mode: Normal</div>
+                    <div class="simulation-controls">
+                        <div class="simulation-speed">
+                            <label>Kecepatan:</label>
+                            <input type="range" id="sim-speed" min="0.5" max="2" step="0.1" value="1">
+                        </div>
+                    </div>
+                </div>
+                <div class="canvas-container">
+                    <div class="grid-overlay"></div>
+                    <div id="circuit-canvas" class="circuit-canvas"></div>
+                </div>
+                <div class="status-bar">
+                    <span id="status-message">Siap. Tambahkan komponen dari toolbar dan hubungkan dengan kabel.</span>
+                    <span id="circuit-stats">Komponen: 0, Kabel: 0</span>
+                </div>
+            </div>
+
+            <div class="properties-panel">
+                <h3>Properti Komponen</h3>
+                <div class="property-content">
+                    <div id="no-selection" class="property-group">
+                        <p>Pilih komponen untuk mengedit propertinya.</p>
+                    </div>
+                    
+                    <div id="battery-properties" class="property-group" style="display: none;">
+                        <label class="property-label">Tegangan (Volt)</label>
+                        <div class="property-control">
+                            <input type="number" id="battery-voltage" class="property-input" min="0" max="24" step="0.1" value="9">
+                            <div class="slider-container">
+                                <input type="range" id="battery-voltage-slider" min="0" max="24" step="0.1" value="9">
+                            </div>
+                            <button id="update-battery" class="update-btn">Perbarui</button>
+                        </div>
+                    </div>
+
+                    <div id="resistor-properties" class="property-group" style="display: none;">
+                        <label class="property-label">Resistansi (Ohm)</label>
+                        <div class="property-control">
+                            <input type="number" id="resistor-resistance" class="property-input" min="1" max="10000" step="1" value="470">
+                            <div class="slider-container">
+                                <input type="range" id="resistor-resistance-slider" min="1" max="1000" step="1" value="470">
+                            </div>
+                            <button id="update-resistor" class="update-btn">Perbarui</button>
+                        </div>
+                    </div>
+
+                    <div id="led-properties" class="property-group" style="display: none;">
+                        <label class="property-label">Warna</label>
+                        <div class="property-control">
+                            <div class="color-selection">
+                                <label class="color-option">
+                                    <input type="radio" name="led-color" value="red" checked>
+                                    <span class="color-preview red"></span>
+                                    <span>Merah</span>
+                                </label>
+                                <label class="color-option">
+                                    <input type="radio" name="led-color" value="green">
+                                    <span class="color-preview green"></span>
+                                    <span>Hijau</span>
+                                </label>
+                                <label class="color-option">
+                                    <input type="radio" name="led-color" value="blue">
+                                    <span class="color-preview blue"></span>
+                                    <span>Biru</span>
+                                </label>
+                                <label class="color-option">
+                                    <input type="radio" name="led-color" value="yellow">
+                                    <span class="color-preview yellow"></span>
+                                    <span>Kuning</span>
+                                </label>
+                            </div>
+                        </div>
+                        <label class="property-label">Tegangan Forward (V)</label>
+                        <div class="property-control">
+                            <input type="number" id="led-voltage" class="property-input" min="0.5" max="4" step="0.1" value="1.8">
+                            <button id="update-led" class="update-btn">Perbarui</button>
+                        </div>
+                    </div>
+
+                    <div id="switch-properties" class="property-group" style="display: none;">
+                        <label class="property-label">Status</label>
+                        <div class="property-control">
+                            <div class="switch-toggle">
+                                <input type="checkbox" id="switch-state-toggle">
+                                <label for="switch-state-toggle" class="toggle-label"></label>
+                                <span id="switch-status-label">Terbuka</span>
+                            </div>
+                            <select id="switch-state" class="property-input" style="display: none;">
+                                <option value="open">Terbuka</option>
+                                <option value="closed">Tertutup</option>
+                            </select>
+                            <button id="update-switch" class="update-btn">Perbarui</button>
+                        </div>
+                    </div>
+
+                    <div id="capacitor-properties" class="property-group" style="display: none;">
+                        <label class="property-label">Kapasitansi (Farad)</label>
+                        <div class="property-control">
+                            <input type="number" id="capacitor-capacitance" class="property-input" min="1e-9" max="1" step="1e-6" value="1e-6">
+                            <div class="slider-container">
+                                <input type="range" id="capacitor-capacitance-slider" min="0" max="100" step="1" value="50">
+                            </div>
+                            <button id="update-capacitor" class="update-btn">Perbarui</button>
+                        </div>
+                    </div>
+
+                    <div id="inductor-properties" class="property-group" style="display: none;">
+                        <label class="property-label">Induktansi (Henry)</label>
+                        <div class="property-control">
+                            <input type="number" id="inductor-inductance" class="property-input" min="1e-6" max="10" step="1e-3" value="1e-3">
+                            <div class="slider-container">
+                                <input type="range" id="inductor-inductance-slider" min="0" max="100" step="1" value="50">
+                            </div>
+                            <button id="update-inductor" class="update-btn">Perbarui</button>
+                        </div>
+                    </div>
+
+                    <div id="diode-properties" class="property-group" style="display: none;">
+                        <label class="property-label">Tegangan Forward (V)</label>
+                        <div class="property-control">
+                            <input type="number" id="diode-voltage" class="property-input" min="0.1" max="2" step="0.1" value="0.7">
+                            <button id="update-diode" class="update-btn">Perbarui</button>
+                        </div>
+                    </div>
+
+                    <div id="acSource-properties" class="property-group" style="display: none;">
+                        <label class="property-label">Amplitudo (Volt)</label>
+                        <div class="property-control">
+                            <input type="number" id="acSource-amplitude" class="property-input" min="0" max="24" step="0.1" value="5">
+                        </div>
+                        <label class="property-label">Frekuensi (Hz)</label>
+                        <div class="property-control">
+                            <input type="number" id="acSource-frequency" class="property-input" min="1" max="1000" step="1" value="60">
+                            <button id="update-acSource" class="update-btn">Perbarui</button>
+                        </div>
+                    </div>
+
+                    <div id="voltmeter-properties" class="property-group" style="display: none;">
+                        <label class="property-label">Nilai Terukur</label>
+                        <div class="property-control">
+                            <div class="measurement-display" id="voltmeter-display">0.00 V</div>
+                        </div>
+                    </div>
+
+                    <div id="ammeter-properties" class="property-group" style="display: none;">
+                        <label class="property-label">Nilai Terukur</label>
+                        <div class="property-control">
+                            <div class="measurement-display" id="ammeter-display">0.00 A</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Oscilloscope View -->
+                <div class="oscilloscope-container">
+                    <h3>Oscilloscope</h3>
+                    <div class="oscilloscope-controls">
+                        <button id="oscilloscope-voltage" class="oscilloscope-btn active">Tegangan</button>
+                        <button id="oscilloscope-current" class="oscilloscope-btn">Arus</button>
+                        <select id="oscilloscope-component" class="oscilloscope-select">
+                            <option value="all">Semua Komponen</option>
+                        </select>
+                    </div>
+                    <canvas id="oscilloscope-canvas" width="280" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Simulasi -->
+    <div id="simulation-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Hasil Simulasi</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="simulation-visualization">
+                    <canvas id="circuit-visualization" width="600" height="400"></canvas>
+                </div>
+                <div class="simulation-data">
+                    <h4>Hasil perhitungan rangkaian:</h4>
+                    <div id="simulation-results" class="simulation-results"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="close-simulation-modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
